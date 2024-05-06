@@ -92,7 +92,14 @@ void tc5()
 
 int main(int argc, const char *argv[])
 {
-    tc1();
-
+    // tc1();
+    kDTree tree;
+    ifstream fIn("test.txt");
+    while(!fIn.eof()) {
+        vector<int> data;
+        cin >> data[0] >> data[1];
+        tree.insert(data);
+    }
+    tree.inorderTraversal();
     return 0;
 }

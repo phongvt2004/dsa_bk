@@ -3,6 +3,9 @@
 /* TODO: Please design your data structure carefully so that you can work with the given dataset
  *       in this assignment. The below structures are just some suggestions.
  */
+
+#define ll long long
+
 struct kDTreeNode
 {
     vector<int> data;
@@ -14,13 +17,29 @@ struct kDTreeNode
         this->left = left;
         this->right = right;
     }
+    kDTreeNode* copyTree();
+    void inorder(bool &first);
+    void preorder(bool &first);
+    void postorder(bool &first);
+    void print();
+    int height() const;
+    int nodeCount() const;
+    int leafCount() const;
+    void insert(const vector<int> &point, int k, int depth = 0);
+    kDTreeNode* search(const vector<int> &point, int k, int depth = 0);
+    bool equal(const kDTreeNode * other);
+    bool equal(const vector<int> &point);
+    double distance(const kDTreeNode * other);
+    friend kDTreeNode* replaceNode(kDTreeNode* root, int k, int alpha, int depth);
+    friend void deleteAll(kDTreeNode* node);
+    friend void deleteNode(kDTreeNode* target, const kDTreeNode* root, int k, int alpha);
 };
 
 class kDTree
 {
 private:
-    int k;
-    kDTreeNode *root;
+    int _k;
+    kDTreeNode *root = nullptr;
 
 public:
     kDTree(int k = 2);

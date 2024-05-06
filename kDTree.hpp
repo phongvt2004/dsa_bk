@@ -17,6 +17,7 @@ struct kDTreeNode
         this->left = left;
         this->right = right;
     }
+    ~kDTreeNode();
     kDTreeNode* copyTree();
     void inorder(bool &first);
     void preorder(bool &first);
@@ -31,8 +32,9 @@ struct kDTreeNode
     bool equal(const vector<int> &point);
     double distance(const kDTreeNode * other);
     friend kDTreeNode* replaceNode(kDTreeNode* root, int k, int alpha, int depth);
-    friend void deleteAll(kDTreeNode* node);
-    friend void deleteNode(kDTreeNode* target, const kDTreeNode* root, int k, int alpha);
+    friend void deleteAll(kDTreeNode* &node);
+    friend void deleteNode(kDTreeNode* &target,kDTreeNode* root, int k, int alpha, bool &isLeaf);
+    friend void deleteLeaf(kDTreeNode* root, const kDTreeNode* target, int k, int depth);
 };
 
 class kDTree

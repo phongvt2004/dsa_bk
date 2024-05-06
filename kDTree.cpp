@@ -70,7 +70,7 @@ int kDTreeNode::leafCount() const {
 }
 
 void kDTreeNode::insert(const vector<int> &point, int k, int depth) {
-    if(data[depth%k] < point[depth%k]) {
+    if(data[depth%k] <= point[depth%k]) {
         if(right != nullptr) right->insert(point,k,depth+1);
         else right = new kDTreeNode(point);
     } else {
@@ -119,25 +119,63 @@ kDTreeNode* replaceNode(kDTreeNode* root, int k, int alpha, int depth) {
     }
 }
 
-void deleteNode(kDTreeNode* target, const kDTreeNode* root, int k, int alpha) {
+kDTreeNode::~kDTreeNode() {
+    // print();
+    // cout << endl;
+    // cout << this <<endl;
+}
+
+void deleteLeaf(kDTreeNode* root, const kDTreeNode* target, int k, int depth) {
+    if(root->left == target) {
+        delete root->left;
+        root->left = nullptr;
+        return;
+    }
+
+    if(root->right == target) {
+        delete root->right;
+        root->right = nullptr;
+        return;
+    }
+
+    if(root->data[depth%k] <= target->data[depth%k]) {
+        if(root->right != nullptr) deleteLeaf(root->right, target,k,depth+1);
+        else return;
+    } else {
+        if(root->left != nullptr) deleteLeaf(root->left, target,k,depth+1);
+        else return;
+    }
+}
+
+void deleteNode(kDTreeNode* &target, kDTreeNode* root, int k, int alpha, bool &isLeaf) {
     if(target == nullptr) return;
     int depth = root->height() - target->height();
     if(target->left == nullptr && target->right == nullptr) {
-        delete target;
-        target = nullptr;
+        isLeaf = true;
         return;
     } else if(target->right != nullptr) {
+        // target->print();
+        // cout << endl;
         kDTreeNode* replace = replaceNode(target->right, k, alpha, depth+1);
         target->data = replace->data;
         alpha = root->height() - replace->height();
-        deleteNode(replace, root, k, alpha);
+        cout << replace <<endl;
+        deleteNode(replace, root, k, alpha, isLeaf);
+        if(isLeaf) deleteLeaf(root, replace, k, 0);
+        isLeaf = false;
+
     } else {
+        // target->print();
+        // cout << endl;
         kDTreeNode* replace = replaceNode(target->left, k, alpha, depth+1);
         target->data = replace->data;
         alpha = root->height() - replace->height();
         target->right = target->left;
         target->left = nullptr;
-        deleteNode(replace, root, k, alpha);
+        cout << replace <<endl;
+        deleteNode(replace, root, k, alpha, isLeaf);
+        if(isLeaf) deleteLeaf(root, replace, k, 0);
+        isLeaf = false;
     }
 }
 
@@ -145,7 +183,7 @@ kDTreeNode* kDTreeNode::search(const vector<int> &point, int k, int depth) {
 
     if(equal(point)) return this;
 
-    if(data[depth%k] < point[depth%k]) {
+    if(data[depth%k] <= point[depth%k]) {
         if(right != nullptr) return right->search(point,k,depth+1);
         else return nullptr;
     } else {
@@ -155,7 +193,7 @@ kDTreeNode* kDTreeNode::search(const vector<int> &point, int k, int depth) {
 }
 
 
-void deleteAll(kDTreeNode* node) {
+void deleteAll(kDTreeNode* &node) {
     if(node == nullptr) return;
     deleteAll(node->left);
     deleteAll(node->right);
@@ -231,7 +269,9 @@ void kDTree::remove(const vector<int> &point) {
     if(target == nullptr) return;
     int alpha = root->height() - target->height();
     alpha %= _k;
-    deleteNode(target, root, _k, alpha);
+    bool isLeaf = false;
+    deleteNode(target, root, _k, alpha, isLeaf);
+    if(isLeaf) root = nullptr;
 }
 
 bool kDTree::search(const vector<int> &point) {
